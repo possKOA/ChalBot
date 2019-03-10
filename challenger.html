@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Latest compiled and minified CSS -->
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<title>KOA Challenger</title>
+</head>
+<body>
+	<img alt="KOA logo" height="60px" src="https://i.imgur.com/EL4vWSW.png">
+	<h1>KOA Challenger</h1>
+	<hr>
+	<p>1. Fill out the form (to post to tavern, use "public" as the ID)<br>
+	2. Click the "Get Form Data" button<br>
+	3. Click one of the other buttons</p>
+	<form id="chalForm" name="chalForm">
+		<input name="test" placeholder="Challenge Name" type="text"><br>
+		<input name="test" placeholder="Short Name" type="text"><br>
+		<input name="test" placeholder="Summary (image goes here)" type="text"><br>
+		<textarea name="test" placeholder="Description" rows="10"></textarea><br>
+		<input name="test" placeholder="Gem Prize" type="number"><br>
+		<input name="test" placeholder="Time between creation and awarding winner (in MILLISECONDS)" type="number"><br>
+		<input name="test" placeholder="Group ID (where to post)" type="text"><br>
+	</form>
+	<div id="buttons">
+		<button class="btn btn-info" onclick="getForm()" type="button">Get Form Data</button>
+		<hr>
+		<form id="tasks" name="tasks">
+			<input name="tasks" placeholder="Task text" type="text"><br>
+			<select>
+				<option disabled="true">
+					Task type
+				</option>
+				<option value="habit">
+					Habit
+				</option>
+				<option value="daily">
+					Daily
+				</option>
+				<option value="todo">
+					To-do
+				</option>
+				<option value="reward">
+					Reward
+				</option>
+			</select><br>
+			<textarea name="tasks" placeholder="Task notes" rows="5"></textarea><br>
+			<select>
+				<option disabled="true">
+					Task difficulty
+				</option>
+				<option value="0.1">
+					Trivial
+				</option>
+				<option value="1">
+					Easy
+				</option>
+				<option value="1.5">
+					Medium
+				</option>
+				<option value="2">
+					Hard
+				</option>
+			</select><br>
+			<select>
+				<option disabled="true">
+					Positive Habit (check no if not a habit):
+				</option>
+				<option value="true">
+					Yes
+				</option>
+				<option selected value="false">
+					No
+				</option>
+			</select><br>
+			<select>
+				<option disabled="true">
+					Negative Habit (check no if not a habit):
+				</option>
+				<option value="true">
+					Yes
+				</option>
+				<option selected value="false">
+					No
+				</option>
+			</select><br>
+			<input name="tasks" placeholder="Challenge ID" type="text"><br>
+		</form><button class="btn btn-success" onclick="createChallenge()" type="button">Add Task</button>
+		<hr>
+		<button class="btn btn-primary" onclick="withInterval()" type="button">Execute Full Sequence</button> <button class="btn btn-success" onclick="createChallenge()" type="button">Only Create Challenge</button>
+	</div>
+	<hr>
+	<h3>Server Response:</h3>
+	<p id="demo"></p>
+</body>
+</html>

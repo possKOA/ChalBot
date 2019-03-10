@@ -1,0 +1,32 @@
+body {
+	text-align: center;
+}
+hr {
+	border-style: groove;
+}
+h3 {
+	padding-right: 60%;
+	padding-top: 20px;
+}
+#buttons {
+	padding-top: 10px;
+}
+button {
+	height: 40px;
+	margin: 5px;
+}
+input {
+	margin: 2px;
+	width: 55%;
+}
+textarea {
+	width: 55%;
+	margin: 2px;
+}
+select {
+	width: 55%;
+	margin: 2px;
+}
+img {
+	margin-top: 10px;
+}
