@@ -4,6 +4,25 @@ var fSummary;
 var fDescription;
 var fPrize;
 var fInterval;
+var fGroup;
+var fFreq;
+var uuid = "fb308060-0861-42ac-8f79-72d2e52eb359";
+var apikey = "2c52e670-5a8c-49a8-89c0-de64e46c990c";
+var numMembers;
+var repeat;
+
+//Task slots
+var task1;
+var task2;
+var task3;
+var task4;
+var task5;
+var task6;
+var task7;
+var task8;
+var task9;
+var task10;
+var tasks = [];
 
 function getForm() {
 	var x = document.getElementById("chalForm");
@@ -15,6 +34,9 @@ function getForm() {
 	fPrize = x.elements[4].value;
 	fInterval = x.elements[5].value;
 	fGroup = x.elements[6].value;
+	fFreq = x.elements[7].value;
+	console.log(fFreq);
+	console.log("Get dates: " + String(getDates(fFreq)));
 	document.getElementById("demo").innerHTML = fName + "<br>" + fShort + "<br>" + fSummary + "<br>" + fDescription + "<br>" + fPrize + "<br>" + fInterval + "<br>" + fGroup;
 }
 
@@ -32,8 +54,8 @@ function createChallenge(name, shortName, summary, description) {
 	};
 	xhttp.open("POST", "https://habitica.com/api/v3/challenges/", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.setRequestHeader("x-api-user", "fb308060-0861-42ac-8f79-72d2e52eb359");
-	xhttp.setRequestHeader("x-api-key", "2c52e670-5a8c-49a8-89c0-de64e46c990c");
+	xhttp.setRequestHeader("x-api-user", uuid);
+	xhttp.setRequestHeader("x-api-key", apikey);
 	xhttp.send("group=" + fGroup + "&name=" + fName + "&shortName=" + fShort + "&summary=" + fSummary + "&description=" + fDescription);
 }
 
@@ -46,32 +68,39 @@ function awardWinner(challengeID, winnersID) {
 	};
 	xhttp.open("POST", "https://habitica.com/api/v3/challenges/" + challengeID + "/selectWinner/" + winnersID, true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.setRequestHeader("x-api-user", "fb308060-0861-42ac-8f79-72d2e52eb359");
-	xhttp.setRequestHeader("x-api-key", "2c52e670-5a8c-49a8-89c0-de64e46c990c");
+	xhttp.setRequestHeader("x-api-user", uuid);
+	xhttp.setRequestHeader("x-api-key", apikey);
 	xhttp.send("");
 }
 
 function fullSequence() {
 	var winnerID;
 	var chalID;
-	var numMembers;
 	//create challenge
 	var xhttp = new XMLHttpRequest();
 	var resText;
+	var hasSent = false;
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200 || 201) {
-			var resText = this.responseText;
+			resText = this.responseText;
 			var res2 = JSON.parse(resText);
 			chalID = res2.data.id;
 			document.getElementById("demo").innerHTML = "Challenge URL: https://habitica.com/challenges/" + chalID;
+			if(hasSent == false) {
+				var i;
+				for (i = 0; i < tasks.length; i++) {
+					submitTasks(tasks[i].text, tasks[i].type, tasks[i].notes, tasks[i].pos, tasks[i].neg, tasks[i].cost, tasks[i].diff, chalID);
+				}
+				hasSent = true;
+			}
 		}
 	};
 	xhttp.open("POST", "https://habitica.com/api/v3/challenges/", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.setRequestHeader("x-api-user", "fb308060-0861-42ac-8f79-72d2e52eb359");
-	xhttp.setRequestHeader("x-api-key", "2c52e670-5a8c-49a8-89c0-de64e46c990c");
-	console.log(fName);
-	xhttp.send("group=" + fGroup + "&name=" + fName + "&shortName=" + fShort + "&summary=" + fSummary + "&description=" + fDescription);
+	xhttp.setRequestHeader("x-api-user", uuid);
+	xhttp.setRequestHeader("x-api-key", apikey);
+	xhttp.send("group=" + fGroup + "&name=" + fName + " | " + String(getDates(fFreq)) + "&shortName=" + fShort + "&summary=" + fSummary + "&description=" + fDescription);
+	
 	setTimeout(function() {
 		//get challenge, choose winner
 		var xhttp2 = new XMLHttpRequest();
@@ -80,35 +109,202 @@ function fullSequence() {
 				var resText2 = this.responseText;
 				var res3 = JSON.parse(resText2);
 				numMembers = res3.data.memberCount;
+				if(numMembers == 0) {
+					document.getElementById("demo").innerHTML = "No one joined your challenge :(";
+				}
 			}
 		};
 		xhttp2.open("GET", "https://habitica.com/api/v3/challenges/" + chalID, true);
-		xhttp2.setRequestHeader("x-api-user", "fb308060-0861-42ac-8f79-72d2e52eb359");
-		xhttp2.setRequestHeader("x-api-key", "2c52e670-5a8c-49a8-89c0-de64e46c990c");
+		xhttp2.setRequestHeader("x-api-user", uuid);
+		xhttp2.setRequestHeader("x-api-key", apikey);
 		xhttp2.send();
-		var xhttp = new XMLHttpRequest();
-		var resText;
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200 || 201) {
-				var resText = this.responseText;
-				var res2 = JSON.parse(resText);
-				var winnerID = res2.data[Math.floor(Math.random() * numMembers)].id;
-				console.log("Winner ID: " + winnerID);
-				awardWinner(chalID, winnerID);
-			}
-		};
-		xhttp.open("GET", "https://habitica.com/api/v3/challenges/" + chalID + "/members", true);
-		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhttp.setRequestHeader("x-api-user", "fb308060-0861-42ac-8f79-72d2e52eb359");
-		xhttp.setRequestHeader("x-api-key", "2c52e670-5a8c-49a8-89c0-de64e46c990c");
-		xhttp.send();
-	}, fInterval);
+		console.log("Number of members: " + numMembers);
+		if(numMembers == 0) {
+			document.getElementById("demo").innerHTML = "No one joined your challenge :(";
+		} else {
+			var xhttp = new XMLHttpRequest();
+			var resText;
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200 || 201) {
+					resText = this.responseText;
+					var res2 = JSON.parse(resText);
+					winnerID = res2.data[Math.floor(Math.random() * numMembers)].id;
+					console.log("Winner ID: " + winnerID);
+					awardWinner(chalID, winnerID);
+				}
+			};
+			xhttp.open("GET", "https://habitica.com/api/v3/challenges/" + chalID + "/members", true);
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.setRequestHeader("x-api-user", uuid);
+			xhttp.setRequestHeader("x-api-key", apikey);
+			xhttp.send();
+		}
+		
+	}, fInterval - 2000);
+}
+
+function submitTasks2() {
+	var i;
+	for (i = 0; i < tasks.length; i++) {
+		submitTasks(tasks[i].text, tasks[i].type, tasks[i].notes, tasks[i].pos, tasks[i].neg, tasks[i].cost, tasks[i].diff, tasks[i].chal);
+	}
+}
+
+function printText() {
+	console.log("printing text");
 }
 
 function withInterval() {
-	//fullSequence();
-	console.log(parseInt(fInterval));
-	setInterval(function() {
-		console.log(fName)
-	}, parseInt(fInterval));
+	var intervalNum = parseInt(fInterval);
+	repeat = setInterval("fullSequence()", intervalNum);
+}
+
+function stopRepeat() {
+	clearInterval(repeat);
+}
+
+function getDates(isWeekly) {
+	var sun = 31;
+	var nextSun;
+	var now = new Date();
+	var day = now.getDay();
+	var date = now.getDate();
+	var month = now.getMonth() + 1;
+	var monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var chalMonth = months[now.getMonth()];
+	var chalMonth2;
+	console.log("Days in the current month: " + monthDays[now.getMonth()]);
+
+	if(day != 0) {
+		sun = (day + 1 - 8) * -1
+		sun += date
+		console.log(suffixify(date + sun));
+	} else {
+		sun = date;
+	}
+
+	if(parseInt(sun) + 7 > monthDays[now.getMonth()]) {
+		nextSun = parseInt(sun) + 7 - 31;
+		console.log("Next Sunday on: " + suffixify(nextSun));
+		var nextMonth = parseInt(now.getMonth()) + 1;
+		console.log(nextMonth);
+		chalMonth2 = months[parseInt(nextMonth)];
+	} else {
+		nextSun = parseInt(sun) + 7;
+		chalMonth2 = chalMonth;
+	}
+	console.log(suffixify(sun) + " " + chalMonth + " - " + suffixify(String(nextSun)) + " " + chalMonth2);
+	if(isWeekly == "true") {
+		return suffixify(sun) + " " + chalMonth + " - " + suffixify(String(nextSun)) + " " + chalMonth2;
+	} else if (isWeekly == "false") {
+		return chalMonth;
+	}
+}
+
+function suffixify(text) {
+	var num = parseInt(text);
+	var numSplit = String(text).split("");
+	var lastDigit = numSplit[numSplit.length - 1]
+	if(num == 1 || lastDigit == 1) {
+		return text + "st";
+	} else if(num == 2 || lastDigit == 2) {
+		return text + "nd";
+	} else if(num == 3 || lastDigit == 3) {
+		return text + "rd";
+	} else {
+		return text + "th";
+	}
+}
+
+function Task(text, type, notes, diff, pos, neg, cost, chal) {
+	this.text = text;
+	this.type = type;
+	this.notes = notes;
+	this.diff = diff;
+	this.pos = pos;
+	this.neg = neg;
+	this.cost = cost;
+	this.chal = chal;
+}
+function submitTasks(text, type, notes, pos, neg, cost, diff, chal) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200 || 201) {
+			var resText = this.responseText;
+			var res2 = JSON.parse(resText);
+			chalID = res2.data.id;
+			document.getElementById("taskoutput").innerHTML = type + " '" + text + "' added!";
+		}
+	};
+	xhttp.open("POST", "https://habitica.com/api/v3/tasks/challenge/" + chal, true);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.setRequestHeader("x-api-user", uuid);
+	xhttp.setRequestHeader("x-api-key", apikey);
+	xhttp.send("text=" + text + "&type=" + type + "&notes=" + notes + "&up=" + pos + "&down=" + neg + "&value=" + cost + "&priority=" + diff);
+}
+
+function addTask() {
+	var y = document.getElementById("tasks");
+	if(task1 == undefined) {
+		console.log("this bit works");
+		console.log("y.elements[0].value: " + y.elements[0].value);
+		task1 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task1.text);
+		tasks.push(task1);
+	}else if (task2 == undefined) {
+		console.log("this bit works 2");
+		task2 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task2.text);
+		tasks.push(task2);
+	}else if (task3 == undefined) {
+		console.log("this bit works 3");
+		task3 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task3.text);
+		tasks.push(task3);
+	}else if (task4 == undefined) {
+		console.log("this bit works 4");
+		task4 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task4.text);
+		tasks.push(task4);
+	}else if (task5 == undefined) {
+		console.log("this bit works 5");
+		task5 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task5.text);
+		tasks.push(task5);
+	}else if (task6 == undefined) {
+		console.log("this bit works 6");
+		task6 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task6.text);
+		tasks.push(task6);
+	}else if (task7 == undefined) {
+		console.log("this bit works 7");
+		task7 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task7.text);
+		tasks.push(task7);
+	}else if (task8 == undefined) {
+		console.log("this bit works 8");
+		task8 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task8.text);
+		tasks.push(task8);
+	}else if (task9 == undefined) {
+		console.log("this bit works 9");
+		task9 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task9.text);
+		tasks.push(task9);
+	}else if (task10 == undefined) {
+		console.log("this bit works 10");
+		task10 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		console.log(task10.text);
+		tasks.push(task10);
+	}else {
+		console.log("limit reached");
+		document.getElementById("demo").innerHTML = "Limit of 10 tasks reached!"
+	}
+	var textoutput = "";
+	var i;
+	for (i = 0; i < tasks.length; i++) {
+		textoutput += tasks[i].text + "<br>";
+	}
+	document.getElementById("taskoutput").innerHTML = textoutput;
 }
