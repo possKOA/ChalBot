@@ -14,6 +14,12 @@
 	2. Click the "Get Form Data" button.<br>
 	3. Fill out the tasks section and press the "Add Tasks" button for each of the tasks you want to add to your challenge.<br>
 	4. Press the "Execute Full Sequence" button to start the process</p>
+	<form id="userCreds" name="chalForm">
+		<input name="test" placeholder="User-ID" type="text"><br>
+		<input name="test" placeholder="API-Key" type="text"><br>
+	</form>
+	<button class="btn btn-info" onclick="getCreds()" type="button">Get</button>
+	<hr>
 	<form id="chalForm" name="chalForm">
 		<input name="test" placeholder="Challenge Name" type="text"><br>
 		<input name="test" placeholder="Short Name" type="text"><br>
@@ -104,7 +110,7 @@
 		<hr>
 		<button class="btn btn-primary" onclick="withInterval()" type="button">Execute Full Sequence</button> 
 		<button class="btn btn-danger" onclick="stopRepeat()" type="button">Stop</button>
-		<button class="btn btn-info" onclick="getDates()" type="button">Magic Date Button</button>
+		<!--<button class="btn btn-info" onclick="getDates()" type="button">Magic Date Button</button>-->
 	</div>
 	<hr>
 	<h3>Tasks added:</h3>

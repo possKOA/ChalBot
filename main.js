@@ -6,8 +6,8 @@ var fPrize;
 var fInterval;
 var fGroup;
 var fFreq;
-var uuid = "fb308060-0861-42ac-8f79-72d2e52eb359";
-var apikey = "2c52e670-5a8c-49a8-89c0-de64e46c990c";
+var uuid;
+var apikey;
 var numMembers;
 var repeat;
 
@@ -23,6 +23,15 @@ var task8;
 var task9;
 var task10;
 var tasks = [];
+
+
+function getCreds() {
+	var x = document.getElementById("userCreds");
+	uuid = x.elements[0].value;
+	apikey = x.elements[1].value;
+	document.getElementById("demo").innerHTML = uuid + " " + apikey;
+	x.reset();
+}
 
 function getForm() {
 	var x = document.getElementById("chalForm");
@@ -156,6 +165,7 @@ function printText() {
 
 function withInterval() {
 	var intervalNum = parseInt(fInterval);
+	fullSequence();
 	repeat = setInterval("fullSequence()", intervalNum);
 }
 
@@ -164,7 +174,7 @@ function stopRepeat() {
 }
 
 function getDates(isWeekly) {
-	var sun = 31;
+	var sun;
 	var nextSun;
 	var now = new Date();
 	var day = now.getDay();
