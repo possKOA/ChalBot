@@ -6,10 +6,14 @@ var fPrize;
 var fInterval;
 var fGroup;
 var fFreq;
+var fMessage;
 var uuid;
 var apikey;
 var numMembers;
 var repeat;
+var firstTime = true;
+var winnerAlias;
+var hasSentMessage;
 
 //Task slots
 var task1;
@@ -24,6 +28,35 @@ var task9;
 var task10;
 var tasks = [];
 
+function joinChallenge(challengeid) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200 || 201) {
+			//document.getElementById("demo").innerHTML = "";
+		}
+	};
+	xhttp.open("POST", "https://habitica.com/api/v3/challenges/" + challengeid + "/join", true);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.setRequestHeader("x-api-user", uuid);
+	xhttp.setRequestHeader("x-api-key", apikey);
+	xhttp.send();
+}
+
+function getChal() {
+	var xhttp2 = new XMLHttpRequest();
+		xhttp2.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var resText2 = this.responseText;
+				var res3 = JSON.parse(resText2);
+				document.getElementById("demo").innerHTML = this.responseText;
+				
+			}
+		};
+		xhttp2.open("GET", "https://habitica.com/api/v3/challenges/af23c110-c1c8-46d4-ba4a-591263df1a5e/members", true);
+		xhttp2.setRequestHeader("x-api-user", uuid);
+		xhttp2.setRequestHeader("x-api-key", apikey);
+		xhttp2.send();
+}
 
 function getCreds() {
 	var x = document.getElementById("userCreds");
@@ -33,6 +66,30 @@ function getCreds() {
 	x.reset();
 }
 
+function sendToBoard(link, withWinner, winnerName) {
+	var fmodmessage = fMessage;
+	if(withWinner) {
+		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link);
+	} else if(!withWinner) {
+		console.log("posting with winner");
+		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link) + "%0D%0A%0D%0A :trophy: **Last Weeks Winner:** @" + winnerName;
+	} else {
+		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link);
+	}
+	
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200 || 201) {
+			//document.getElementById("demo").innerHTML = "Message posted";
+		}
+	};
+	xhttp.open("POST", "https://habitica.com/api/v3/groups/04c0da9f-cab2-4bb4-b03a-a9eb2d0b6201/chat", true);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.setRequestHeader("x-api-user", uuid);
+	xhttp.setRequestHeader("x-api-key", apikey);
+	xhttp.send("message=" + fmodmessage);
+}
+
 function getForm() {
 	var x = document.getElementById("chalForm");
 	fName = x.elements[0].value;
@@ -40,16 +97,17 @@ function getForm() {
 	fSummary = x.elements[2].value;
 	fDescription = x.elements[3].value;
 	fDescription = fDescription.replace(/(?:\r\n|\r|\n)/g, "%0D%0A");
+	fDescription = fDescription.replace(/&/g, "%26");
 	fPrize = x.elements[4].value;
 	fInterval = x.elements[5].value;
 	fGroup = x.elements[6].value;
 	fFreq = x.elements[7].value;
-	console.log(fFreq);
-	console.log("Get dates: " + String(getDates(fFreq)));
+	fMessage = x.elements[8].value;
+	fMessage = fMessage.replace(/&/g, "%26");
 	document.getElementById("demo").innerHTML = fName + "<br>" + fShort + "<br>" + fSummary + "<br>" + fDescription + "<br>" + fPrize + "<br>" + fInterval + "<br>" + fGroup;
 }
 
-function createChallenge(name, shortName, summary, description) {
+/*function createChallenge(name, shortName, summary, description) {
 	var chalID;
 	var xhttp = new XMLHttpRequest();
 	var resText;
@@ -66,7 +124,7 @@ function createChallenge(name, shortName, summary, description) {
 	xhttp.setRequestHeader("x-api-user", uuid);
 	xhttp.setRequestHeader("x-api-key", apikey);
 	xhttp.send("group=" + fGroup + "&name=" + fName + "&shortName=" + fShort + "&summary=" + fSummary + "&description=" + fDescription);
-}
+}*/
 
 function awardWinner(challengeID, winnersID) {
 	var xhttp = new XMLHttpRequest();
@@ -101,6 +159,8 @@ function fullSequence() {
 					submitTasks(tasks[i].text, tasks[i].type, tasks[i].notes, tasks[i].pos, tasks[i].neg, tasks[i].cost, tasks[i].diff, chalID);
 				}
 				hasSent = true;
+				firstTime = false;
+				joinChallenge(chalID);
 			}
 		}
 	};
@@ -133,13 +193,20 @@ function fullSequence() {
 		} else {
 			var xhttp = new XMLHttpRequest();
 			var resText;
+			hasSentMessage = false;
 			xhttp.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200 || 201) {
 					resText = this.responseText;
 					var res2 = JSON.parse(resText);
-					winnerID = res2.data[Math.floor(Math.random() * numMembers)].id;
-					console.log("Winner ID: " + winnerID);
+					var rand = Math.floor(Math.random() * numMembers);
+					winnerID = res2.data[parseInt(rand)].id;
+					winnerAlias = res2.data[parseInt(rand)].profile.name;
+					console.log("Winner: " + winnerAlias);
 					awardWinner(chalID, winnerID);
+					if(!hasSentMessage) {
+						sendToBoard(chalID, firstTime, String(winnerAlias));
+						hasSentMessage = true;
+					}
 				}
 			};
 			xhttp.open("GET", "https://habitica.com/api/v3/challenges/" + chalID + "/members", true);
@@ -157,10 +224,6 @@ function submitTasks2() {
 	for (i = 0; i < tasks.length; i++) {
 		submitTasks(tasks[i].text, tasks[i].type, tasks[i].notes, tasks[i].pos, tasks[i].neg, tasks[i].cost, tasks[i].diff, tasks[i].chal);
 	}
-}
-
-function printText() {
-	console.log("printing text");
 }
 
 function withInterval() {
@@ -259,52 +322,52 @@ function addTask() {
 	if(task1 == undefined) {
 		console.log("this bit works");
 		console.log("y.elements[0].value: " + y.elements[0].value);
-		task1 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task1 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task1.text);
 		tasks.push(task1);
 	}else if (task2 == undefined) {
 		console.log("this bit works 2");
-		task2 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task2 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task2.text);
 		tasks.push(task2);
 	}else if (task3 == undefined) {
 		console.log("this bit works 3");
-		task3 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task3 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task3.text);
 		tasks.push(task3);
 	}else if (task4 == undefined) {
 		console.log("this bit works 4");
-		task4 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task4 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task4.text);
 		tasks.push(task4);
 	}else if (task5 == undefined) {
 		console.log("this bit works 5");
-		task5 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task5 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task5.text);
 		tasks.push(task5);
 	}else if (task6 == undefined) {
 		console.log("this bit works 6");
-		task6 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task6 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task6.text);
 		tasks.push(task6);
 	}else if (task7 == undefined) {
 		console.log("this bit works 7");
-		task7 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task7 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task7.text);
 		tasks.push(task7);
 	}else if (task8 == undefined) {
 		console.log("this bit works 8");
-		task8 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task8 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task8.text);
 		tasks.push(task8);
 	}else if (task9 == undefined) {
 		console.log("this bit works 9");
-		task9 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task9 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task9.text);
 		tasks.push(task9);
 	}else if (task10 == undefined) {
 		console.log("this bit works 10");
-		task10 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
+		task10 = new Task(y.elements[0].value, y.elements[1].value, y.elements[2].value.replace(/(?:\r\n|\r|\n)/g, "%0D%0A").replace(/&/g, "%26"),  y.elements[3].value, y.elements[4].value, y.elements[5].value, y.elements[6].value);
 		console.log(task10.text);
 		tasks.push(task10);
 	}else {

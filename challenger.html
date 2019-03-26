@@ -10,10 +10,10 @@
 	<img alt="KOA logo" height="60px" src="https://i.imgur.com/EL4vWSW.png">
 	<h1>KOA Challenger</h1>
 	<hr>
-	<p>1. Fill out the form (to post to tavern, use "public" as the ID).<br>
+	<!--<p>1. Fill out the form (to post to tavern, use "tavern" as the ID).<br>
 	2. Click the "Get Form Data" button.<br>
 	3. Fill out the tasks section and press the "Add Tasks" button for each of the tasks you want to add to your challenge.<br>
-	4. Press the "Execute Full Sequence" button to start the process</p>
+	4. Press the "Execute Full Sequence" button to start the process</p>-->
 	<form id="userCreds" name="chalForm">
 		<input name="test" placeholder="User-ID" type="text"><br>
 		<input name="test" placeholder="API-Key" type="text"><br>
@@ -38,8 +38,10 @@
 			<option selected value="false">
 				Monthly
 			</option>
+			
 		</select><br>
-	</form>
+	<textarea name="test" placeholder="Message for Bulletin Board" rows="10"></textarea><br>
+</form>
 	<div id="buttons">
 		<button class="btn btn-info" onclick="getForm()" type="button">Get Form Data</button>
 		<hr>
@@ -110,7 +112,8 @@
 		<hr>
 		<button class="btn btn-primary" onclick="withInterval()" type="button">Execute Full Sequence</button> 
 		<button class="btn btn-danger" onclick="stopRepeat()" type="button">Stop</button>
-		<!--<button class="btn btn-info" onclick="getDates()" type="button">Magic Date Button</button>-->
+		<!--<button class="btn btn-info" onclick="sendToBoard()" type="button">Post to Bulletin Board</button>
+		<button class="btn btn-info" onclick="getChal()" type="button">Get Challenge JSON</button>-->
 	</div>
 	<hr>
 	<h3>Tasks added:</h3>
