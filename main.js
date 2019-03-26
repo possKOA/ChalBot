@@ -6,7 +6,7 @@ var fPrize;
 var fInterval;
 var fGroup;
 var fFreq;
-var fIncludeMessage;
+var fCustomOrSet;
 var fMessage;
 var fMessageGroup;
 var fHorace;
@@ -69,20 +69,52 @@ function getCreds() {
 	x.reset();
 }
 
-function sendToBoard(link, withWinner, winnerName, group) {
-	var fmodmessage = fMessage;
-	fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link) + "%0D%0A%0D%0A :trophy: **Last Weeks Winner:** @" + winnerName;
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200 || 201) {
-			//document.getElementById("demo").innerHTML = "Message posted";
-		}
-	};
-	xhttp.open("POST", "https://habitica.com/api/v3/groups/" + group + "/chat", true);
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.setRequestHeader("x-api-user", uuid);
-	xhttp.setRequestHeader("x-api-key", apikey);
-	xhttp.send("message=" + fmodmessage);
+function sendToBoard(link, withWinner, winnerName, group, customorset) {
+	if(customorset == "tavernbulletin") {
+		var fmodmessage = fMessage;
+		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link) + "%0D%0A%0D%0A :trophy: **Last Weeks Winner:** @" + winnerName;
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200 || 201) {
+				//document.getElementById("demo").innerHTML = "Message posted";
+			}
+		};
+		xhttp.open("POST", "https://habitica.com/api/v3/groups/tavern/chat", true);
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.setRequestHeader("x-api-user", uuid);
+		xhttp.setRequestHeader("x-api-key", apikey);
+		xhttp.send("message=" + fmodmessage);
+
+		/*var fmodmessage = fMessage;
+		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link) + "%0D%0A%0D%0A :trophy: **Last Weeks Winner:** @" + winnerName;
+		*/
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200 || 201) {
+				//document.getElementById("demo").innerHTML = "Message posted";
+			}
+		};
+		xhttp.open("POST", "https://habitica.com/api/v3/groups/d6295936-7106-41d4-b90c-f22bdca3303b/chat", true);
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.setRequestHeader("x-api-user", uuid);
+		xhttp.setRequestHeader("x-api-key", apikey);
+		xhttp.send("message=" + fmodmessage);
+	} else if(customorset == "custom") {
+		var fmodmessage = fMessage;
+		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link) + "%0D%0A%0D%0A :trophy: **Last Weeks Winner:** @" + winnerName;
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200 || 201) {
+				//document.getElementById("demo").innerHTML = "Message posted";
+			}
+		};
+		xhttp.open("POST", "https://habitica.com/api/v3/groups/" + group + "/chat", true);
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.setRequestHeader("x-api-user", uuid);
+		xhttp.setRequestHeader("x-api-key", apikey);
+		xhttp.send("message=" + fmodmessage);
+	}
+	
 }
 
 function getForm() {
@@ -97,7 +129,7 @@ function getForm() {
 	fInterval = x.elements[5].value;
 	fGroup = x.elements[6].value;
 	fFreq = x.elements[7].value;
-	fIncludeMessage = x.elements[8].value;
+	fCustomOrSet = x.elements[8].value;
 	fMessage = x.elements[9].value;
 	fMessage = fMessage.replace(/&/g, "%26");
 	fMessageGroup = x.elements[10].value;
@@ -207,7 +239,7 @@ function fullSequence() {
 					awardWinner(chalID, winnerID);
 					if(!hasSentMessage) {
 						if(fIncludeMessage == "true") {
-							sendToBoard(chalID, firstTime, String(winnerAlias), fMessageGroup);
+							sendToBoard(chalID, firstTime, String(winnerAlias), fMessageGroup, fCustomOrSet);
 						} else {
 							console.log("Message disabled");
 						}
