@@ -7,6 +7,7 @@ var fInterval;
 var fGroup;
 var fFreq;
 var fMessage;
+var fMessageGroup;
 var uuid;
 var apikey;
 var numMembers;
@@ -66,7 +67,7 @@ function getCreds() {
 	x.reset();
 }
 
-function sendToBoard(link, withWinner, winnerName) {
+function sendToBoard(link, withWinner, winnerName, group) {
 	var fmodmessage = fMessage;
 	if(withWinner) {
 		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link);
@@ -83,7 +84,7 @@ function sendToBoard(link, withWinner, winnerName) {
 			//document.getElementById("demo").innerHTML = "Message posted";
 		}
 	};
-	xhttp.open("POST", "https://habitica.com/api/v3/groups/04c0da9f-cab2-4bb4-b03a-a9eb2d0b6201/chat", true);
+	xhttp.open("POST", "https://habitica.com/api/v3/groups/" + group + "/chat", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.setRequestHeader("x-api-user", uuid);
 	xhttp.setRequestHeader("x-api-key", apikey);
@@ -104,6 +105,7 @@ function getForm() {
 	fFreq = x.elements[7].value;
 	fMessage = x.elements[8].value;
 	fMessage = fMessage.replace(/&/g, "%26");
+	fMessageGroup = x.elements[9].value;
 	document.getElementById("demo").innerHTML = fName + "<br>" + fShort + "<br>" + fSummary + "<br>" + fDescription + "<br>" + fPrize + "<br>" + fInterval + "<br>" + fGroup;
 }
 
@@ -204,7 +206,7 @@ function fullSequence() {
 					console.log("Winner: " + winnerAlias);
 					awardWinner(chalID, winnerID);
 					if(!hasSentMessage) {
-						sendToBoard(chalID, firstTime, String(winnerAlias));
+						sendToBoard(chalID, firstTime, String(winnerAlias), fMessageGroup);
 						hasSentMessage = true;
 					}
 				}
