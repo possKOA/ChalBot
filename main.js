@@ -6,6 +6,7 @@ var fPrize;
 var fInterval;
 var fGroup;
 var fFreq;
+var fIncludeMessage;
 var fMessage;
 var fMessageGroup;
 var uuid;
@@ -69,15 +70,7 @@ function getCreds() {
 
 function sendToBoard(link, withWinner, winnerName, group) {
 	var fmodmessage = fMessage;
-	if(withWinner) {
-		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link);
-	} else if(!withWinner) {
-		console.log("posting with winner");
-		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link) + "%0D%0A%0D%0A :trophy: **Last Weeks Winner:** @" + winnerName;
-	} else {
-		fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link);
-	}
-	
+	fmodmessage = fMessage.replace(/LINK/g, "https://habitica.com/challenges/" + link) + "%0D%0A%0D%0A :trophy: **Last Weeks Winner:** @" + winnerName;
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200 || 201) {
@@ -103,9 +96,10 @@ function getForm() {
 	fInterval = x.elements[5].value;
 	fGroup = x.elements[6].value;
 	fFreq = x.elements[7].value;
-	fMessage = x.elements[8].value;
+	fIncludeMessage = x.elements[8].value;
+	fMessage = x.elements[9].value;
 	fMessage = fMessage.replace(/&/g, "%26");
-	fMessageGroup = x.elements[9].value;
+	fMessageGroup = x.elements[10].value;
 	document.getElementById("demo").innerHTML = fName + "<br>" + fShort + "<br>" + fSummary + "<br>" + fDescription + "<br>" + fPrize + "<br>" + fInterval + "<br>" + fGroup;
 }
 
@@ -206,7 +200,11 @@ function fullSequence() {
 					console.log("Winner: " + winnerAlias);
 					awardWinner(chalID, winnerID);
 					if(!hasSentMessage) {
-						sendToBoard(chalID, firstTime, String(winnerAlias), fMessageGroup);
+						if(fIncludeMessage == "true") {
+							sendToBoard(chalID, firstTime, String(winnerAlias), fMessageGroup);
+						} else {
+							console.log("Message disabled");
+						}
 						hasSentMessage = true;
 					}
 				}
