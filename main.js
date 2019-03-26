@@ -273,9 +273,9 @@ function getDates(isWeekly) {
 		nextSun = parseInt(sun) + 7;
 		chalMonth2 = chalMonth;
 	}
-	console.log(suffixify(sun) + " " + chalMonth + " - " + suffixify(String(nextSun)) + " " + chalMonth2);
+	console.log(chalMonth + " " + suffixify(sun) + " - " + chalMonth2 + " " + suffixify(String(nextSun)));
 	if(isWeekly == "true") {
-		return suffixify(sun) + " " + chalMonth + " - " + suffixify(String(nextSun)) + " " + chalMonth2;
+		return chalMonth + " " + suffixify(sun) + " - " + chalMonth2 + " " + suffixify(String(nextSun));
 	} else if (isWeekly == "false") {
 		return chalMonth;
 	}
