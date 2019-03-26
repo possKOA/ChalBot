@@ -9,6 +9,7 @@ var fFreq;
 var fIncludeMessage;
 var fMessage;
 var fMessageGroup;
+var fHorace;
 var uuid;
 var apikey;
 var numMembers;
@@ -100,6 +101,7 @@ function getForm() {
 	fMessage = x.elements[9].value;
 	fMessage = fMessage.replace(/&/g, "%26");
 	fMessageGroup = x.elements[10].value;
+	fHorace = x.elements[11].value;
 	document.getElementById("demo").innerHTML = fName + "<br>" + fShort + "<br>" + fSummary + "<br>" + fDescription + "<br>" + fPrize + "<br>" + fInterval + "<br>" + fGroup;
 }
 
@@ -156,7 +158,11 @@ function fullSequence() {
 				}
 				hasSent = true;
 				firstTime = false;
-				joinChallenge(chalID);
+				if(fHorace == "true") {
+					joinChallenge(chalID);
+				} else {
+					console.log("horace did not join your challenge");
+				}
 			}
 		}
 	};
